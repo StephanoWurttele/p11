@@ -13,16 +13,16 @@ void yyerror(const char* s);
 %}
 
 %code requires {
-  struct s{
-    char * val;
-    int size;
-  };
+  	struct s{
+		char * val;
+		int size;
+	};
 }
 
 %union {
 	int ival;
 	float fval;
-  struct s sval;
+	struct s sval;
 }
 
 %token<ival> T_INT
@@ -42,7 +42,7 @@ void yyerror(const char* s);
 %%
 
 calculation:
-	   | calculation line
+	| calculation line
 ;
 
 line: T_NEWLINE
@@ -53,41 +53,54 @@ line: T_NEWLINE
 ;
 
 mixed_expression: T_FLOAT                 		 { $$ = $1; }
-	  | mixed_expression T_PLUS mixed_expression	 { $$ = $1 + $3; }
-	  | mixed_expression T_MINUS mixed_expression	 { $$ = $1 - $3; }
-	  | mixed_expression T_MULTIPLY mixed_expression { $$ = $1 * $3; }
-	  | mixed_expression T_DIVIDE mixed_expression	 { $$ = $1 / $3; }
-	  | T_LEFT mixed_expression T_RIGHT		 { $$ = $2; }
-	  | expression T_PLUS mixed_expression	 	 { $$ = $1 + $3; }
-	  | expression T_MINUS mixed_expression	 	 { $$ = $1 - $3; }
-	  | expression T_MULTIPLY mixed_expression 	 { $$ = $1 * $3; }
-	  | expression T_DIVIDE mixed_expression	 { $$ = $1 / $3; }
-	  | mixed_expression T_PLUS expression	 	 { $$ = $1 + $3; }
-	  | mixed_expression T_MINUS expression	 	 { $$ = $1 - $3; }
-	  | mixed_expression T_MULTIPLY expression 	 { $$ = $1 * $3; }
-	  | mixed_expression T_DIVIDE expression	 { $$ = $1 / $3; }
-	  | expression T_DIVIDE expression		 { $$ = $1 / (float)$3; }
+	| mixed_expression T_PLUS mixed_expression	 { $$ = $1 + $3; }
+	| mixed_expression T_MINUS mixed_expression	 { $$ = $1 - $3; }
+	| mixed_expression T_MULTIPLY mixed_expression { $$ = $1 * $3; }
+	| mixed_expression T_DIVIDE mixed_expression	 { $$ = $1 / $3; }
+	| T_LEFT mixed_expression T_RIGHT		 { $$ = $2; }
+	| expression T_PLUS mixed_expression	 	 { $$ = $1 + $3; }
+	| expression T_MINUS mixed_expression	 	 { $$ = $1 - $3; }
+	| expression T_MULTIPLY mixed_expression 	 { $$ = $1 * $3; }
+	| expression T_DIVIDE mixed_expression	 { $$ = $1 / $3; }
+	| mixed_expression T_PLUS expression	 	 { $$ = $1 + $3; }
+	| mixed_expression T_MINUS expression	 	 { $$ = $1 - $3; }
+	| mixed_expression T_MULTIPLY expression 	 { $$ = $1 * $3; }
+	| mixed_expression T_DIVIDE expression	 { $$ = $1 / $3; }
+	| expression T_DIVIDE expression		 { $$ = $1 / (float)$3; }
 ;
 
 expression: T_INT				{ $$ = $1; }
-	  | expression T_PLUS expression	{ $$ = $1 + $3; }
-	  | expression T_MINUS expression	{ $$ = $1 - $3; }
-	  | expression T_MULTIPLY expression	{ $$ = $1 * $3; }
-	  | T_LEFT expression T_RIGHT		{ $$ = $2; }
+	| expression T_PLUS expression	{ $$ = $1 + $3; }
+	| expression T_MINUS expression	{ $$ = $1 - $3; }
+	| expression T_MULTIPLY expression	{ $$ = $1 * $3; }
+	| T_LEFT expression T_RIGHT		{ $$ = $2; }
 ;
 
-string: T_STRING { $$=$1; printf("String: %s\n", $1.val);}
-	  | string T_PLUS string	{int Tsize = $1.size + $3.size + 1;
-                             char *string = (char*) malloc (Tsize);
-                             for(int i =0; i < $1.size; i++) string[i] = $1.val[i]; 
-                             for(int i =0; i < $3.size; i++) string[i+ $1.size] = $3.val[i]; 
-                             struct s answer;
-                             answer.val = string;
-                             answer.size = $1.size + $3.size;
-                             $$ = answer;
-                             printf("addition\n"); }
-                             /*
-	  | string T_MULTIPLY expression	{ char temp[10]; strcpy(temp, $1.val); int i = 0; for(i;i<$3;i++){strcat(temp,$1.val);}; $$ = temp; printf("multiplication\n");}*/
+string: T_STRING { $$=$1;}
+	| string T_PLUS string	{
+							int Tsize = $1.size + $3.size + 1;
+                            char *string = (char*) malloc (Tsize);
+                            for(int i =0; i < $1.size; i++) string[i] = $1.val[i]; 
+                            for(int i =0; i < $3.size; i++) string[i+ $1.size] = $3.val[i]; 
+                            struct s answer;
+                            answer.val = string;
+                            answer.size = Tsize;
+                            $$ = answer;}
+	| string T_MULTIPLY expression{
+		  					int Tsize = $1.size * $3 + 1;
+							char *string = (char*) malloc (Tsize);
+							for(int i =0; i < $3; i++){ 
+								for(int j=0; j<$1.size; j++){
+									string[i*$1.size + j] = $1.val[j];
+								}
+							}
+							struct s answer;
+							answer.val = string;
+							answer.size = Tsize;
+							$$ = answer;}
+	| T_LEFT string T_RIGHT		 { $$ = $2; }
+
+
 ;
 
 %%

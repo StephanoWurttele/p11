@@ -42,10 +42,10 @@ extern int yydebug;
 /* "%code requires" blocks.  */
 #line 15 "calc.y" /* yacc.c:1909  */
 
-  struct s{
-    char * val;
-    int size;
-  };
+  	struct s{
+		char * val;
+		int size;
+	};
 
 #line 51 "y.tab.h" /* yacc.c:1909  */
 
@@ -89,7 +89,7 @@ union YYSTYPE
 
 	int ival;
 	float fval;
-  struct s sval;
+	struct s sval;
 
 #line 95 "y.tab.h" /* yacc.c:1909  */
 };
